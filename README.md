@@ -1,11 +1,13 @@
+**This version exists as "microsoft-speech-browser-sdk-legacy" in order to fix minor upstream issues for repositories that aren't ready to upgrade.**
+
 [![npm version](https://badge.fury.io/js/microsoft-speech-browser-sdk.svg)](https://www.npmjs.com/package/microsoft-speech-browser-sdk)
 
 # February 2019
 
 The version 1.3 of the Cognitive Services Speech SDK is available.
-The open-source Javascript version can be found [here](https://github.com/Microsoft/cognitive-services-speech-sdk-js). For other languages and platform check out the [Speech SDK home page](https://aka.ms/csspeech). 
+The open-source Javascript version can be found [here](https://github.com/Microsoft/cognitive-services-speech-sdk-js). For other languages and platform check out the [Speech SDK home page](https://aka.ms/csspeech).
 
->NOTE: This repository is deprecated. Please use the new Cognitive Services Speech SDK!
+> NOTE: This repository is deprecated. Please use the new Cognitive Services Speech SDK!
 
 # September 2018: New Microsoft Cognitive Services Speech SDK available
 
@@ -13,7 +15,7 @@ We released a new Speech SDK supporting the new [Unified Speech Service](https:/
 
 Please check out [Microsoft Cognitive Services Speech SDK](https://aka.ms/csspeech) for documentation, links to the download pages, and the samples.
 
->NOTE: The content of this repository is supporting the [Bing Speech Service](https://docs.microsoft.com/en-us/azure/cognitive-services/Speech/Home), not the new [Speech Service](https://azure.microsoft.com/services/cognitive-services/speech-services). Bing Speech Service has been deprecated, please use the new Speech Service.
+> NOTE: The content of this repository is supporting the [Bing Speech Service](https://docs.microsoft.com/en-us/azure/cognitive-services/Speech/Home), not the new [Speech Service](https://azure.microsoft.com/services/cognitive-services/speech-services). Bing Speech Service has been deprecated, please use the new Speech Service.
 
 ## Prerequisites
 
@@ -25,9 +27,9 @@ The Speech API is part of Cognitive Services. You can get free trial subscriptio
 
 ## Get started
 
-In this section we will walk you through the necessary steps to load a sample HTML page. The sample is located in our [github repository](https://github.com/Azure-Samples/SpeechToText-WebSockets-Javascript). You can **open the sample directly** from the repository, or **open the sample from a local copy** of the repository. 
+In this section we will walk you through the necessary steps to load a sample HTML page. The sample is located in our [github repository](https://github.com/Azure-Samples/SpeechToText-WebSockets-Javascript). You can **open the sample directly** from the repository, or **open the sample from a local copy** of the repository.
 
-**Note:** Some browsers block microphone access on un-secure origin. So, it is recommended to host the 'sample'/'your app' on https to get it working on all supported browsers. 
+**Note:** Some browsers block microphone access on un-secure origin. So, it is recommended to host the 'sample'/'your app' on https to get it working on all supported browsers.
 
 ### Open the sample directly
 
@@ -54,6 +56,7 @@ Open `samples\browser\Sample.html` in your favorite browser.
 ### Installation of npm package
 
 An npm package of the Microsoft Speech Javascript Websocket SDK is available. To install the [npm package](https://www.npmjs.com/package/microsoft-speech-browser-sdk) run
+
 ```
 npm install microsoft-speech-browser-sdk
 ```
@@ -63,85 +66,99 @@ npm install microsoft-speech-browser-sdk
 If you're building a node app and want to use the Speech SDK, all you need to do is add the following import statement:
 
 ```javascript
-import * as SDK from 'microsoft-speech-browser-sdk';
+import * as SDK from "microsoft-speech-browser-sdk";
 ```
 
 <a name="reco_setup"></a>and setup the recognizer:
 
 ```javascript
-function RecognizerSetup(SDK, recognitionMode, language, format, subscriptionKey) {
-    let recognizerConfig = new SDK.RecognizerConfig(
-        new SDK.SpeechConfig(
-            new SDK.Context(
-                new SDK.OS(navigator.userAgent, "Browser", null),
-                new SDK.Device("SpeechSample", "SpeechSample", "1.0.00000"))),
-        recognitionMode, // SDK.RecognitionMode.Interactive  (Options - Interactive/Conversation/Dictation)
-        language, // Supported languages are specific to each recognition mode Refer to docs.
-        format); // SDK.SpeechResultFormat.Simple (Options - Simple/Detailed)
+function RecognizerSetup(
+  SDK,
+  recognitionMode,
+  language,
+  format,
+  subscriptionKey
+) {
+  let recognizerConfig = new SDK.RecognizerConfig(
+    new SDK.SpeechConfig(
+      new SDK.Context(
+        new SDK.OS(navigator.userAgent, "Browser", null),
+        new SDK.Device("SpeechSample", "SpeechSample", "1.0.00000")
+      )
+    ),
+    recognitionMode, // SDK.RecognitionMode.Interactive  (Options - Interactive/Conversation/Dictation)
+    language, // Supported languages are specific to each recognition mode Refer to docs.
+    format
+  ); // SDK.SpeechResultFormat.Simple (Options - Simple/Detailed)
 
-    // Alternatively use SDK.CognitiveTokenAuthentication(fetchCallback, fetchOnExpiryCallback) for token auth
-    let authentication = new SDK.CognitiveSubscriptionKeyAuthentication(subscriptionKey);
+  // Alternatively use SDK.CognitiveTokenAuthentication(fetchCallback, fetchOnExpiryCallback) for token auth
+  let authentication = new SDK.CognitiveSubscriptionKeyAuthentication(
+    subscriptionKey
+  );
 
-    return SDK.Recognizer.Create(recognizerConfig, authentication);
+  return SDK.Recognizer.Create(recognizerConfig, authentication);
 }
 
 function RecognizerStart(SDK, recognizer) {
-    recognizer.Recognize((event) => {
-        /*
+  recognizer
+    .Recognize(event => {
+      /*
             Alternative syntax for typescript devs.
             if (event instanceof SDK.RecognitionTriggeredEvent)
         */
-        switch (event.Name) {
-            case "RecognitionTriggeredEvent" :
-                UpdateStatus("Initializing");
-                break;
-            case "ListeningStartedEvent" :
-                UpdateStatus("Listening");
-                break;
-            case "RecognitionStartedEvent" :
-                UpdateStatus("Listening_Recognizing");
-                break;
-            case "SpeechStartDetectedEvent" :
-                UpdateStatus("Listening_DetectedSpeech_Recognizing");
-                console.log(JSON.stringify(event.Result)); // check console for other information in result
-                break;
-            case "SpeechHypothesisEvent" :
-                UpdateRecognizedHypothesis(event.Result.Text);
-                console.log(JSON.stringify(event.Result)); // check console for other information in result
-                break;
-            case "SpeechFragmentEvent" :
-                UpdateRecognizedHypothesis(event.Result.Text);
-                console.log(JSON.stringify(event.Result)); // check console for other information in result
-                break;
-            case "SpeechEndDetectedEvent" :
-                OnSpeechEndDetected();
-                UpdateStatus("Processing_Adding_Final_Touches");
-                console.log(JSON.stringify(event.Result)); // check console for other information in result
-                break;
-            case "SpeechSimplePhraseEvent" :
-                UpdateRecognizedPhrase(JSON.stringify(event.Result, null, 3));
-                break;
-            case "SpeechDetailedPhraseEvent" :
-                UpdateRecognizedPhrase(JSON.stringify(event.Result, null, 3));
-                break;
-            case "RecognitionEndedEvent" :
-                OnComplete();
-                UpdateStatus("Idle");
-                console.log(JSON.stringify(event)); // Debug information
-                break;
-        }
+      switch (event.Name) {
+        case "RecognitionTriggeredEvent":
+          UpdateStatus("Initializing");
+          break;
+        case "ListeningStartedEvent":
+          UpdateStatus("Listening");
+          break;
+        case "RecognitionStartedEvent":
+          UpdateStatus("Listening_Recognizing");
+          break;
+        case "SpeechStartDetectedEvent":
+          UpdateStatus("Listening_DetectedSpeech_Recognizing");
+          console.log(JSON.stringify(event.Result)); // check console for other information in result
+          break;
+        case "SpeechHypothesisEvent":
+          UpdateRecognizedHypothesis(event.Result.Text);
+          console.log(JSON.stringify(event.Result)); // check console for other information in result
+          break;
+        case "SpeechFragmentEvent":
+          UpdateRecognizedHypothesis(event.Result.Text);
+          console.log(JSON.stringify(event.Result)); // check console for other information in result
+          break;
+        case "SpeechEndDetectedEvent":
+          OnSpeechEndDetected();
+          UpdateStatus("Processing_Adding_Final_Touches");
+          console.log(JSON.stringify(event.Result)); // check console for other information in result
+          break;
+        case "SpeechSimplePhraseEvent":
+          UpdateRecognizedPhrase(JSON.stringify(event.Result, null, 3));
+          break;
+        case "SpeechDetailedPhraseEvent":
+          UpdateRecognizedPhrase(JSON.stringify(event.Result, null, 3));
+          break;
+        case "RecognitionEndedEvent":
+          OnComplete();
+          UpdateStatus("Idle");
+          console.log(JSON.stringify(event)); // Debug information
+          break;
+      }
     })
-    .On(() => {
+    .On(
+      () => {
         // The request succeeded. Nothing to do here.
-    },
-    (error) => {
+      },
+      error => {
         console.error(error);
-    });
+      }
+    );
 }
 
 function RecognizerStop(SDK, recognizer) {
-    // recognizer.AudioSource.Detach(audioNodeId) can be also used here. (audioNodeId is part of ListeningStartedEvent)
-    recognizer.AudioSource.TurnOff();
+  // recognizer.AudioSource.Detach(audioNodeId) can be also used here. (audioNodeId is part of ListeningStartedEvent)
+  recognizer.AudioSource.TurnOff();
 }
 ```
 
@@ -151,9 +168,9 @@ Currently, the TypeScript code in this SDK is compiled using the default module 
 
 1. Add `require` statement to you web app source file, for instance (take a look at [sample_app.js](samples/browser/sample_app.js)):
 
-    ```javascript
-        var SDK = require('<path_to_speech_SDK>/Speech.Browser.Sdk.js');
-    ```
+   ```javascript
+   var SDK = require("<path_to_speech_SDK>/Speech.Browser.Sdk.js");
+   ```
 
 2. Setup the recognizer, same as [above](#reco_setup).
 
@@ -161,9 +178,9 @@ Currently, the TypeScript code in this SDK is compiled using the default module 
 
 4. Add the generated bundle to your html page:
 
-    ```
-    <script src="../../distrib/speech.sdk.bundle.js"></script>
-    ```
+   ```
+   <script src="../../distrib/speech.sdk.bundle.js"></script>
+   ```
 
 ### In a Browser, as a native ES6 module
 
@@ -174,12 +191,15 @@ Currently, the TypeScript code in this SDK is compiled using the default module 
 To use token-based authentication, please launch a local node server, as described [here](https://github.com/Azure-Samples/SpeechToText-WebSockets-Javascript/blob/master/samples/browser/README.md)
 
 ## Docs
+
 The SDK is a reference implementation for the speech websocket protocol. Check the [API reference](https://docs.microsoft.com/en-us/azure/cognitive-services/speech/API-reference-rest/bingvoicerecognition#websocket) and [Websocket protocol reference](https://docs.microsoft.com/en-us/azure/cognitive-services/speech/API-reference-rest/websocketprotocol) for more details.
 
 ## Browser support
+
 The SDK depends on WebRTC APIs to get access to the microphone and read the audio stream. Most of todays browsers(Edge/Chrome/Firefox) support this. For more details about supported browsers refer to [navigator.getUserMedia#BrowserCompatibility](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/getUserMedia#Browser_compatibility)
 
 **Note:** The SDK currently depends on [navigator.getUserMedia](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/getUserMedia#Browser_compatibility) API. However this API is in process of being dropped as browsers are moving towards newer [MediaDevices.getUserMedia](https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia) instead. The SDK will add support to the newer API soon.
 
 ## Contributing
+
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
